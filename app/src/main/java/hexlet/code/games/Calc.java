@@ -1,56 +1,35 @@
 package hexlet.code.games;
-
-import java.util.Random;
-import java.util.Scanner;
-
+import hexlet.code.Engine;
+import hexlet.code.Utils;
 public class Calc {
-    private static final int CORRECT_ANSWERS = 3;
-    private static final int OPERAND_RANGE = 2;
-    private static final int RANDOM_RANGE = 100;
-    public static void calculateExpression() {
-        Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Welcome to the Brain Games!");
-        System.out.print("May I have your name? ");
-        String userName = scanner.next();
-        System.out.println("Hello, " + userName + "!");
+    private static final int RANDOM_START = 0;
+    private static final int RANDOM_BOUND = 100;
+    private static final String GAME_RULES = "What is the result of the expression?";
 
-        System.out.println("What is the result of the expression?");
+    public static void startGame() {
+        String[][] gameData = new String[Engine.GAME_ROUNDS][2];
 
-        var sum = 0;
-
-        while (sum < CORRECT_ANSWERS) {
-            Random random = new Random();
-            var firstTerm = random.nextInt(RANDOM_RANGE) + 1;
-            var secondTerm = random.nextInt(RANDOM_RANGE) + 1;
+        for (var i = 0; i < Engine.GAME_ROUNDS; i++) {
+            var firstNumber = Utils.generateNumber(RANDOM_START, RANDOM_BOUND);
+            var secondNumber = Utils.generateNumber(RANDOM_START, RANDOM_BOUND);
             String[] operators = {"+", "-", "*"};
-            var i = random.nextInt(OPERAND_RANGE + 1);
+            var operatorBound = operators.length;
+            var operatorIndex = Utils.generateNumber(RANDOM_START, operatorBound);
+            var randomOperator = operators[operatorIndex];
 
-            System.out.println("Question: " + firstTerm + " "
-                    + operators[i] + " " + secondTerm);
-            String userAnswer = scanner.next();
-            System.out.println("Your answer: "  + userAnswer);
-            int result = switch (operators[i]) {
-                case "+" -> firstTerm + secondTerm;
-                case "-" -> firstTerm - secondTerm;
-                default -> firstTerm * secondTerm;
-            };
-
-            if (Integer.toString(result).equals(userAnswer)) {
-                sum = sum + 1;
-                System.out.println("Correct!");
-                if (sum == CORRECT_ANSWERS) {
-                    System.out.println("Congratulations, " + userName + "!");
-                    System.exit(0);
-                }
-
-            } else {
-                System.out.println("'" + userAnswer + "'"
-                        + " is wrong answer ;(. Correct answer was " + "'" + result + "'."
-                        + "\n Let's try again, " + userName + "!");
-                System.exit(0);
-            }
+            gameData[i][0] = firstNumber + " " + randomOperator + " " + secondNumber;
+            gameData[i][1] = getCorrectAnswer(firstNumber, randomOperator, secondNumber);
         }
-
+        Engine.engineGame(gameData, GAME_RULES);
+    }
+    public static String getCorrectAnswer(int firstNumber, String operator, int secondNumber) {
+        int result = switch (operator) {
+            case "+" -> firstNumber + secondNumber;
+            case "-" -> firstNumber - secondNumber;
+            case "*" -> firstNumber * secondNumber;
+            default -> throw new Error("Unknown operation: " + operator + "!");
+        };
+        return String.valueOf(result);
     }
 }
